@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Escape Room – Ecuaciones Lineales (Período 4)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div id="particles"></div>
+
+<div class="container">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="block"><span>⏳</span><span class="label">Tiempo:</span> <span class="value" id="hudTime">45:00</span></div>
+    <div class="block"><span>⭐</span><span class="label">Puntaje:</span> <span class="value" id="hudScore">0</span></div>
+    <div class="block"><span>🔐</span><span class="label">Clave:</span>
+      <div class="keyslots"><div class="key" id="k1">•</div><div class="key" id="k2">•</div><div class="key" id="k3">•</div><div class="key" id="k4">•</div></div>
+    </div>
+    <div class="badge">👥 Equipo: <b id="hudTeam">—</b></div>
+    <div class="badge">🏷️ Sección: <b id="hudSection">—</b></div>
+    <div class="block" id="hudState" title="Estado del juego"><span>🎮</span><span class="value">Esperando inicio</span></div>
+  </div>
+
+  <!-- Inicio -->
+  <div id="start" class="card start">
+    <h1 class="big">¡Escapa de Ecuaciones Lineales!</h1>
+    <p>Primero ingresa <b>integrantes</b> y <b>sección</b>. Tienes <b>45 minutos</b>, <b>1 intento por reto</b> y <b>1 pista</b> por reto.<br>
+    <span id="startInfo" style="font-size:12px;opacity:.85"></span></p>
+    <input id="team" class="input" placeholder="Integrantes (separados por coma)"/>
+    <div style="height:8px"></div>
+    <input id="section" class="input" placeholder="Sección (ej.: B1)"/>
+    <div style="height:12px"></div>
+    <button class="btn red" id="btnStart">Entrar al cuarto</button>
+    <div id="startWarn" style="margin-top:10px;color:#b91c1c;display:none">Completa ambos campos para iniciar.</div>
+    <div id="startLock" style="margin-top:10px;color:#7a1616;display:none;font-weight:600">🚫 Este equipo ya jugó en este navegador.</div>
+  </div>
+
+  <!-- Sala -->
+  <div id="game" class="hidden">
+    <div class="room-wrap">
+      <div class="room card">
+        <div class="ceiling"></div><div class="wall"></div><div class="molding"></div><div class="floor"></div>
+
+        <div class="obj door hover" id="doorObj" title="Reto 4: Aplicación combinada">
+          <span class="tag">Puerta</span><div class="door-inner"></div><div class="knob"></div>
+        </div>
+
+        <div class="obj frame hover" id="frameObj" title="Reto 1: Pendiente–intersección">
+          <span class="tag">Cuadro</span><div class="frame-inner"></div>
+        </div>
+
+        <div class="obj safe hover" id="safeObj" title="Reto 3: Punto–pendiente">
+          <span class="tag">Caja</span><div class="safe-door"></div><div class="safe-knob"></div>
+        </div>
+
+        <div class="obj shelf" id="shelfObj" title="Reto 2: Desplazamiento">
+          <div class="books hover" id="booksObj"><div class="book"></div><div class="book"></div><div class="book"></div></div>
+        </div>
+
+        <div class="footer-bar">
+          <div>Progreso: <b id="scoreTxt">0/4</b></div>
+          <div class="words" id="words"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn white" id="btnPDF" disabled>Descargar PDF</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tiempo agotado -->
+<div id="lock" class="lock">
+  <div class="card" style="padding:26px;max-width:720px;background:#111;color:#fff;border-color:#333">
+    <h1 class="big">⏰ ¡Tiempo agotado!</h1>
+    <p>La puerta sigue cerrada. Vuelve a intentarlo.</p>
+    <div style="height:10px"></div>
+    <button class="btn red" onclick="location.reload()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- Final -->
+<div id="win" class="lock" style="display:none">
+  <div class="card" style="padding:26px;max-width:760px;background:#fff;border-color:#eee;color:#111">
+    <h1 class="big">🎉 ¡Juego terminado!</h1>
+    <p id="summary">Has completado los 4 retos.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn white" id="btnPDF2">Descargar PDF</button>
+      <button class="btn red" onclick="location.reload()">Reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+
+<!-- Reto 1: Forma pendiente–intersección -->
+<div id="m1" class="modal-wrap"><div class="card modal">
+  <div class="kicker">Reto del Cuadro</div><h2>Forma pendiente–intersección</h2>
+  <p class="q">Convierte a forma pendiente–intersección la ecuación: <b>2y + 4x = 6</b></p>
+  <div class="pill">Ejemplo de formato: <b>y = mx + b</b> (Ej.: <b>y = 3x - 1</b>)</div>
+  <input id="a1" class="input" placeholder="Ej.: y = 3x - 1">
+  <div style="height:10px"></div>
+  <span id="r1" class="pill">Respuesta pendiente</span>
+  <div style="height:10px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="hint1">Ver pista (1)</button>
+    <button class="btn red" onclick="send1(event)">Enviar</button>
+    <button class="btn white" onclick="closeModal('m1')">Cerrar</button>
+  </div>
+  <span id="h1" class="pill" style="display:none">Pista: despeja y. Divide todo entre 2 y ordena como y = mx + b.</span>
+</div></div>
+
+<!-- Reto 2: Desplazamiento de la gráfica -->
+<div id="m2" class="modal-wrap"><div class="card modal">
+  <div class="kicker">Reto de los Libros</div><h2>Desplazamiento de la gráfica</h2>
+  <p class="q">Compara con la recta base <b>y = 2x</b>:</p>
+  <div class="pill">Ejemplo de formato: <b>arriba 2</b> o <b>abajo 5</b></div>
+  <label><b>a)</b> Para <b>y = 2x + 3</b>
+    <input id="a2a" class="input" placeholder="Ej.: arriba 2">
+  </label>
+  <label><b>b)</b> Para <b>y = 2x − 3</b>
+    <input id="a2b" class="input" placeholder="Ej.: abajo 5">
+  </label>
+  <div style="height:10px"></div>
+  <span id="r2" class="pill">Respuestas pendientes</span>
+  <div style="height:10px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="hint2">Ver pista (1)</button>
+    <button class="btn red" onclick="send2(event)">Enviar</button>
+    <button class="btn white" onclick="closeModal('m2')">Cerrar</button>
+  </div>
+  <span id="h2" class="pill" style="display:none">Pista: el término <b>b</b> mueve la recta verticalmente: +b → arriba, −b → abajo.</span>
+</div></div>
+
+<!-- Reto 3: Forma punto–pendiente -->
+<div id="m3" class="modal-wrap"><div class="card modal">
+  <div class="kicker">Reto de la Caja</div><h2>Forma punto–pendiente</h2>
+  <p class="q">Ecuación de la recta que pasa por <b>(−2, 3)</b> con pendiente <b>m = 4</b>.</p>
+  <div class="pill">Ejemplos: <b>y − 1 = 2(x − 0)</b> (punto–pendiente) o <b>y = 2x + 1</b> (pendiente–intersección)</div>
+  <input id="a3" class="input" placeholder="Ej.: y - 1 = 2(x - 0)  ó  y = 2x + 1">
+  <div style="height:10px"></div>
+  <span id="r3" class="pill">Respuesta pendiente</span>
+  <div style="height:10px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="hint3">Ver pista (1)</button>
+    <button class="btn red" onclick="send3(event)">Enviar</button>
+    <button class="btn white" onclick="closeModal('m3')">Cerrar</button>
+  </div>
+  <span id="h3" class="pill" style="display:none">Pista: usa <b>y − y₁ = m(x − x₁)</b> con (x₁,y₁)=(-2,3); también puedes convertir a <b>y = mx + b</b>.</span>
+</div></div>
+
+<!-- Reto 4: Aplicación combinada -->
+<div id="m4" class="modal-wrap"><div class="card modal">
+  <div class="kicker">Reto de la Puerta</div><h2>Aplicación combinada</h2>
+  <p class="q">La recta pasa por <b>(1, 2)</b> con pendiente <b>m = −1/2</b>. Luego se desplaza <b>3 hacia arriba</b> y <b>2 a la derecha</b>. Escribe la <b>nueva ecuación</b>.</p>
+  <div class="pill">Ejemplo: <b>y = -0.5x + 4</b> (formato correcto, NO es la respuesta de este reto)</div>
+  <input id="a4" class="input" placeholder="Ej.: y = -0.5x + 4">
+  <div style="height:10px"></div>
+  <span id="r4" class="pill">Respuesta pendiente</span>
+  <div style="height:10px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="hint4">Ver pista (1)</button>
+    <button class="btn red" onclick="send4(event)">Enviar</button>
+    <button class="btn white" onclick="closeModal('m4')">Cerrar</button>
+  </div>
+  <span id="h4" class="pill" style="display:none">Pista: calcula la base y luego aplica: derecha 2 ⇒ x→(x−2), arriba 3 ⇒ suma 3 a y.</span>
+</div></div>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="index.js"></script>
+</body>
+</html>
